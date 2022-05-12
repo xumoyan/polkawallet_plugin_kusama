@@ -276,7 +276,7 @@ class _OverviewCard extends StatelessWidget {
                 onPressed: () async {
                   final res = await Navigator.of(context).pushNamed(
                     SubmitTipPage.route,
-                    arguments: isCouncil,
+                    arguments: {'params': isCouncil},
                   );
                   if (res != null) {
                     refreshPage();

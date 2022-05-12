@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polkawallet_sdk/plugin/index.dart';
 
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
+
 class ListItemData {
   ListItemData({this.title, this.subtitle});
   final String title;
@@ -13,7 +15,9 @@ class SelectListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<ListItemData> list = ModalRoute.of(context).settings.arguments;
+    final List<ListItemData> list =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as List<ListItemData>;
     return Scaffold(
       appBar: AppBar(title: Text('Select')),
       body: SafeArea(

@@ -100,8 +100,10 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
                           onTap: () async {
                             final acc = await Navigator.of(context).pushNamed(
                               AccountListPage.route,
-                              arguments: AccountListPageParams(
-                                  list: widget.keyring.allAccounts),
+                              arguments: {
+                                'params': AccountListPageParams(
+                                    list: widget.keyring.allAccounts)
+                              },
                             );
                             if (acc != null) {
                               setState(() {

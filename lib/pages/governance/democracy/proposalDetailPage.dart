@@ -19,6 +19,7 @@ import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class ProposalDetailPage extends StatefulWidget {
   ProposalDetailPage(this.plugin, this.keyring);
@@ -58,7 +59,9 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
 
   Future<void> _onSwitch() async {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
-    final ProposalInfoData proposal = ModalRoute.of(context).settings.arguments;
+    final ProposalInfoData proposal =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as ProposalInfoData;
     final TxConfirmParams params = TxConfirmParams(
       module: 'democracy',
       call: 'second',
@@ -84,7 +87,8 @@ class _ProposalDetailPageState extends State<ProposalDetailPage> {
   Widget build(BuildContext context) {
     var dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
     final ProposalInfoData proposalPara =
-        ModalRoute.of(context).settings.arguments;
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as ProposalInfoData;
     return Scaffold(
       appBar: AppBar(
           title: Text(

@@ -94,7 +94,7 @@ class _ProposalsState extends State<MoneyTips> {
                           onTap: () async {
                             final res = await Navigator.of(context).pushNamed(
                               TipDetailPage.route,
-                              arguments: tip,
+                              arguments: {'params': tip},
                             );
                             if (res != null) {
                               _refreshKey.currentState.show();

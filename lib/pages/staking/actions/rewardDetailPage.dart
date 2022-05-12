@@ -7,6 +7,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txDetail.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class RewardDetailPage extends StatelessWidget {
   RewardDetailPage(this.plugin, this.keyring);
@@ -21,7 +22,9 @@ class RewardDetailPage extends StatelessWidget {
     final dicStaking = I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
     final decimals = plugin.networkState.tokenDecimals[0];
     final symbol = plugin.networkState.tokenSymbol[0];
-    final TxRewardData detail = ModalRoute.of(context).settings.arguments;
+    final TxRewardData detail =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as TxRewardData;
 
     return TxDetail(
       networkName: plugin.basic.name,

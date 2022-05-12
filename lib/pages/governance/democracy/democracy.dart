@@ -92,17 +92,19 @@ class _DemocracyState extends State<Democracy> {
             (e) => 'api.tx.democracy.removeVote(${BigInt.parse(e.toString())})')
         .toList();
     txs.add('api.tx.democracy.unlock("${widget.keyring.current.address}")');
-    final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
-        arguments: TxConfirmParams(
-          txTitle: dic['democracy.unlock'],
-          module: 'utility',
-          call: 'batch',
-          txDisplay: {
-            "actions": ['democracy.removeVote', 'democracy.unlock'],
-          },
-          params: [],
-          rawParams: '[[${txs.join(',')}]]',
-        ));
+    final res =
+        await Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: {
+      'params': TxConfirmParams(
+        txTitle: dic['democracy.unlock'],
+        module: 'utility',
+        call: 'batch',
+        txDisplay: {
+          "actions": ['democracy.removeVote', 'democracy.unlock'],
+        },
+        params: [],
+        rawParams: '[[${txs.join(',')}]]',
+      )
+    });
     if (res != null) {
       _refreshKey.currentState.show();
     }

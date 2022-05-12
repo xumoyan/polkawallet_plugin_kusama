@@ -10,6 +10,7 @@ import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/pages/accountListPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class SubmitTipPage extends StatefulWidget {
   SubmitTipPage(this.plugin, this.keyring);
@@ -35,7 +36,8 @@ class _SubmitTipPageState extends State<SubmitTipPage> {
     if (_formKey.currentState.validate()) {
       final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
       final int decimals = widget.plugin.networkState.tokenDecimals[0];
-      final bool isCouncil = ModalRoute.of(context).settings.arguments;
+      final bool isCouncil =
+          Utils.getParams(ModalRoute.of(context).settings.arguments) as bool;
       final String amt = _amountCtrl.text.trim();
       final String address = _beneficiary.address;
       return TxConfirmParams(
@@ -95,7 +97,8 @@ class _SubmitTipPageState extends State<SubmitTipPage> {
     final dicCommon = I18n.of(context).getDic(i18n_full_dic_kusama, 'common');
     final decimals = widget.plugin.networkState.tokenDecimals[0];
     final symbol = widget.plugin.networkState.tokenSymbol[0];
-    final bool isCouncil = ModalRoute.of(context).settings.arguments;
+    final bool isCouncil =
+        Utils.getParams(ModalRoute.of(context).settings.arguments) as bool;
     return Scaffold(
       appBar: AppBar(
           title: Text(
@@ -117,8 +120,10 @@ class _SubmitTipPageState extends State<SubmitTipPage> {
                           onTap: () async {
                             final acc = await Navigator.of(context).pushNamed(
                               AccountListPage.route,
-                              arguments: AccountListPageParams(
-                                  list: widget.keyring.allAccounts),
+                              arguments: {
+                                'params': AccountListPageParams(
+                                    list: widget.keyring.allAccounts)
+                              },
                             );
                             if (acc != null) {
                               setState(() {

@@ -32,26 +32,28 @@ class _StakePageState extends State<StakePage> {
     final txBond = 'api.tx.staking.bond(...${jsonEncode(_bondParams.params)})';
     final txNominate =
         'api.tx.staking.nominate(...${jsonEncode(nominateParams.params)})';
-    final res = await Navigator.of(context).pushNamed(TxConfirmPage.route,
-        arguments: TxConfirmParams(
-          txTitle: dic['staking'],
-          module: 'utility',
-          call: 'batchAll',
-          txDisplay: {
-            "actions": [
-              {
-                'call': '${_bondParams.module}.${_bondParams.call}',
-                ..._bondParams.txDisplay
-              },
-              {
-                'call': '${nominateParams.module}.${nominateParams.call}',
-                ...nominateParams.txDisplay
-              }
-            ],
-          },
-          params: [],
-          rawParams: '[[$txBond,$txNominate]]',
-        ));
+    final res =
+        await Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: {
+      'params': TxConfirmParams(
+        txTitle: dic['staking'],
+        module: 'utility',
+        call: 'batchAll',
+        txDisplay: {
+          "actions": [
+            {
+              'call': '${_bondParams.module}.${_bondParams.call}',
+              ..._bondParams.txDisplay
+            },
+            {
+              'call': '${nominateParams.module}.${nominateParams.call}',
+              ...nominateParams.txDisplay
+            }
+          ],
+        },
+        params: [],
+        rawParams: '[[$txBond,$txNominate]]',
+      )
+    });
     if (res != null) {
       Navigator.of(context).pop(res);
     }

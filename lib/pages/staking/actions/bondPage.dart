@@ -39,7 +39,7 @@ class _BondPageState extends State<BondPage> {
     accounts.addAll(widget.keyring.externals);
     final acc = await Navigator.of(context).pushNamed(
       AccountListPage.route,
-      arguments: AccountListPageParams(list: accounts),
+      arguments: {'params': AccountListPageParams(list: accounts)},
     );
     if (acc != null) {
       setState(() {

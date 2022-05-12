@@ -8,6 +8,7 @@ import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/addressFormItem.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class SetControllerPage extends StatefulWidget {
   SetControllerPage(this.plugin, this.keyring);
@@ -35,7 +36,9 @@ class _SetControllerPageState extends State<SetControllerPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final KeyPairData acc = ModalRoute.of(context).settings.arguments;
+      final KeyPairData acc =
+          Utils.getParams(ModalRoute.of(context).settings.arguments)
+              as KeyPairData;
       setState(() {
         _controller = acc;
       });
@@ -79,8 +82,8 @@ class _SetControllerPageState extends State<SetControllerPage> {
                 padding: EdgeInsets.all(16),
                 child: TxButton(
                   getTxParams: () async {
-                    var currentController =
-                        ModalRoute.of(context).settings.arguments;
+                    var currentController = Utils.getParams(
+                        ModalRoute.of(context).settings.arguments);
                     if (currentController != null &&
                         _controller.pubKey ==
                             (currentController as KeyPairData).pubKey) {

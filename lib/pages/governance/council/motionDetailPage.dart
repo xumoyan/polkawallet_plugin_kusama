@@ -17,6 +17,7 @@ import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class MotionDetailPage extends StatefulWidget {
   MotionDetailPage(this.plugin, this.keyring);
@@ -70,7 +71,9 @@ class _MotionDetailPageState extends State<MotionDetailPage> {
 
   void _onVote(bool approve) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
-    final CouncilMotionData motion = ModalRoute.of(context).settings.arguments;
+    final CouncilMotionData motion =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as CouncilMotionData;
     final args = TxConfirmParams(
       module: 'council',
       call: 'vote',
@@ -90,7 +93,8 @@ class _MotionDetailPageState extends State<MotionDetailPage> {
         .pushNamed(TxConfirmPage.route, arguments: args);
     if (res != null) {
       final CouncilMotionData motion =
-          ModalRoute.of(context).settings.arguments;
+          Utils.getParams(ModalRoute.of(context).settings.arguments)
+              as CouncilMotionData;
       _fetchTreasuryProposal(motion.proposal.args[0]);
     }
   }
@@ -98,7 +102,9 @@ class _MotionDetailPageState extends State<MotionDetailPage> {
   @override
   Widget build(BuildContext context) {
     final Map dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
-    final CouncilMotionData motion = ModalRoute.of(context).settings.arguments;
+    final CouncilMotionData motion =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as CouncilMotionData;
     return Observer(
       builder: (BuildContext context) {
         int blockTime = 6000;

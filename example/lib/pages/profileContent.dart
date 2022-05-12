@@ -89,10 +89,12 @@ class _ProfileContentState extends State<ProfileContent> {
   }
 
   Future<void> _onChangeNetwork() async {
-    final selected = await Navigator.of(context).pushNamed(SelectListPage.route,
-        arguments: widget.plugins
-            .map((e) => ListItemData(title: e.basic.name, subtitle: ''))
-            .toList());
+    final selected =
+        await Navigator.of(context).pushNamed(SelectListPage.route, arguments: {
+      'params': widget.plugins
+          .map((e) => ListItemData(title: e.basic.name, subtitle: ''))
+          .toList()
+    });
     if (selected != null) {
       final net = widget.plugins[selected];
       if (net.basic.name != widget.network.basic.name) {
@@ -112,10 +114,12 @@ class _ProfileContentState extends State<ProfileContent> {
   }
 
   Future<void> _onChangeNode() async {
-    final selected = await Navigator.of(context).pushNamed(SelectListPage.route,
-        arguments: widget.network.nodeList
-            .map((e) => ListItemData(title: e.name, subtitle: e.endpoint))
-            .toList());
+    final selected =
+        await Navigator.of(context).pushNamed(SelectListPage.route, arguments: {
+      'params': widget.network.nodeList
+          .map((e) => ListItemData(title: e.name, subtitle: e.endpoint))
+          .toList()
+    });
     if (selected != null) {
       if (widget.connectedNode != null) {
         widget.setConnectedNode(null);

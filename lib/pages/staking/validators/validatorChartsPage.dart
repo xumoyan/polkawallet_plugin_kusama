@@ -9,6 +9,7 @@ import 'package:polkawallet_plugin_kusama/store/staking/types/validatorData.dart
 import 'package:polkawallet_plugin_kusama/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class ValidatorChartsPage extends StatelessWidget {
   ValidatorChartsPage(this.plugin, this.keyring);
@@ -28,7 +29,8 @@ class ValidatorChartsPage extends StatelessWidget {
         builder: (_) {
           final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
           final ValidatorData detail =
-              ModalRoute.of(context).settings.arguments;
+              Utils.getParams(ModalRoute.of(context).settings.arguments)
+                  as ValidatorData;
 
           return Scaffold(
             appBar: AppBar(

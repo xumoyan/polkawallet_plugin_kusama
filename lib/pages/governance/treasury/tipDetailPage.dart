@@ -16,6 +16,7 @@ import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class TipDetailPage extends StatefulWidget {
   TipDetailPage(this.plugin, this.keyring);
@@ -113,7 +114,9 @@ class _TipDetailPageState extends State<TipDetailPage> {
   Future<void> _onEndorseSubmit() async {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
     final decimals = widget.plugin.networkState.tokenDecimals[0];
-    final TreasuryTipData tipData = ModalRoute.of(context).settings.arguments;
+    final TreasuryTipData tipData =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as TreasuryTipData;
     String amt = _tipInputCtrl.text.trim();
     final args = TxConfirmParams(
       module: 'tips',
@@ -143,7 +146,9 @@ class _TipDetailPageState extends State<TipDetailPage> {
 
   Future<void> _onCancel() async {
     var dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
-    final TreasuryTipData tipData = ModalRoute.of(context).settings.arguments;
+    final TreasuryTipData tipData =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as TreasuryTipData;
     final args = TxConfirmParams(
       module: 'tips',
       call: 'retractTip',
@@ -160,7 +165,9 @@ class _TipDetailPageState extends State<TipDetailPage> {
 
   Future<void> _onCloseTip() async {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
-    final TreasuryTipData tipData = ModalRoute.of(context).settings.arguments;
+    final TreasuryTipData tipData =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as TreasuryTipData;
     final args = TxConfirmParams(
       module: 'tips',
       call: 'closeTip',
@@ -178,7 +185,9 @@ class _TipDetailPageState extends State<TipDetailPage> {
   Future<void> _onTip(BigInt median) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
     final decimals = widget.plugin.networkState.tokenDecimals[0];
-    final TreasuryTipData tipData = ModalRoute.of(context).settings.arguments;
+    final TreasuryTipData tipData =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as TreasuryTipData;
     final args = TxConfirmParams(
       module: 'tips',
       call: 'tip',
@@ -201,7 +210,9 @@ class _TipDetailPageState extends State<TipDetailPage> {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
     final symbol = widget.plugin.networkState.tokenSymbol[0];
     final decimals = widget.plugin.networkState.tokenDecimals[0];
-    final TreasuryTipData tipData = ModalRoute.of(context).settings.arguments;
+    final TreasuryTipData tipData =
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as TreasuryTipData;
     final who = KeyPairData();
     final finder = KeyPairData();
     who.address = tipData.who;
@@ -451,11 +462,13 @@ class _TipDetailPageState extends State<TipDetailPage> {
                                   onTap: () {
                                     Navigator.of(context).pushNamed(
                                       CandidateDetailPage.route,
-                                      arguments: widget
-                                          .plugin.store.gov.council.members
-                                          .firstWhere((i) {
-                                        return i[0] == e.address;
-                                      }),
+                                      arguments: {
+                                        'params': widget
+                                            .plugin.store.gov.council.members
+                                            .firstWhere((i) {
+                                          return i[0] == e.address;
+                                        })
+                                      },
                                     );
                                   },
                                 );

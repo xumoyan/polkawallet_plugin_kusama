@@ -11,6 +11,7 @@ import 'package:polkawallet_ui/components/borderedTitle.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class CandidateDetailPage extends StatefulWidget {
   CandidateDetailPage(this.plugin, this.keyring);
@@ -31,7 +32,8 @@ class _CandidateDetailPageState extends State<CandidateDetailPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.plugin.store.gov.councilVotes != null) {
-        final List info = ModalRoute.of(context).settings.arguments;
+        final List info =
+            Utils.getParams(ModalRoute.of(context).settings.arguments) as List;
         final voters = widget.plugin.store.gov.councilVotes[info[0]];
         widget.plugin.service.gov.updateIconsAndIndices(voters.keys.toList());
       }
@@ -41,7 +43,8 @@ class _CandidateDetailPageState extends State<CandidateDetailPage> {
   @override
   Widget build(BuildContext context) {
     final Map dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
-    final List info = ModalRoute.of(context).settings.arguments;
+    final List info =
+        Utils.getParams(ModalRoute.of(context).settings.arguments) as List;
     final decimals = widget.plugin.networkState.tokenDecimals[0];
     final symbol = widget.plugin.networkState.tokenSymbol[0];
     return Scaffold(

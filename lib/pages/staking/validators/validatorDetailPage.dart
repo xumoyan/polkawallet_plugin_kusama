@@ -15,6 +15,7 @@ import 'package:polkawallet_ui/components/infoItem.dart';
 import 'package:polkawallet_ui/components/roundedCard.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class ValidatorDetailPage extends StatelessWidget {
   ValidatorDetailPage(this.plugin, this.keyring);
@@ -30,7 +31,8 @@ class ValidatorDetailPage extends StatelessWidget {
               I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
           final int decimals = plugin.networkState.tokenDecimals[0];
           final ValidatorData detail =
-              ModalRoute.of(context).settings.arguments;
+              Utils.getParams(ModalRoute.of(context).settings.arguments)
+                  as ValidatorData;
 
           final accInfo =
               plugin.store.accounts.addressIndexMap[detail.accountId];
@@ -102,7 +104,7 @@ class ValidatorDetailPage extends StatelessWidget {
                                 ),
                                 onTap: () => Navigator.of(context).pushNamed(
                                     ValidatorChartsPage.route,
-                                    arguments: detail),
+                                    arguments: {'params': detail}),
                               ),
                             ],
                           ),

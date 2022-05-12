@@ -19,6 +19,7 @@ import 'package:polkawallet_ui/pages/txConfirmPage.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class SpendProposalPage extends StatefulWidget {
   SpendProposalPage(this.plugin, this.keyring);
@@ -52,7 +53,8 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
   Future<void> _showActions({bool isVote = false}) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
     final SpendProposalData proposal =
-        ModalRoute.of(context).settings.arguments;
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as SpendProposalData;
     CouncilProposalData proposalData = CouncilProposalData();
     if (isVote) {
       proposalData = proposal.council[0].proposal;
@@ -102,7 +104,8 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
   Future<void> _onSendToCouncil(bool approve) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
     final SpendProposalData proposal =
-        ModalRoute.of(context).settings.arguments;
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as SpendProposalData;
     final String txName =
         'treasury.${approve ? 'approveProposal' : 'rejectProposal'}';
     final args = TxConfirmParams(
@@ -123,7 +126,8 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
   Future<void> _onVote(bool approve) async {
     final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
     final SpendProposalData proposal =
-        ModalRoute.of(context).settings.arguments;
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as SpendProposalData;
     final CouncilMotionData councilProposal = proposal.council[0];
     final args = TxConfirmParams(
       module: 'council',
@@ -153,7 +157,8 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
     final symbol = widget.plugin.networkState.tokenSymbol[0] ?? '';
     final decimals = widget.plugin.networkState.tokenDecimals[0] ?? 10;
     final SpendProposalData proposal =
-        ModalRoute.of(context).settings.arguments;
+        Utils.getParams(ModalRoute.of(context).settings.arguments)
+            as SpendProposalData;
     final proposer = KeyPairData();
     final beneficiary = KeyPairData();
     proposer.address = proposal.proposal.proposer;

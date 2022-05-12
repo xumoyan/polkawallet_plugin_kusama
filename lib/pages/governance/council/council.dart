@@ -357,8 +357,10 @@ class CandidateItem extends StatelessWidget {
             )} $tokenSymbol'),
       onTap: noTap
           ? null
-          : () => Navigator.of(context).pushNamed(CandidateDetailPage.route,
-              arguments: balance.length == 1 ? ([balance[0], '0x0']) : balance),
+          : () => Navigator.of(context)
+                  .pushNamed(CandidateDetailPage.route, arguments: {
+                'params': balance.length == 1 ? ([balance[0], '0x0']) : balance
+              }),
       trailing: trailing ?? Container(width: 8),
     );
   }

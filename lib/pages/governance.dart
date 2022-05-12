@@ -122,8 +122,10 @@ class Gov extends StatelessWidget {
                             ),
                             onTap: () => Navigator.of(context).pushNamed(
                               DAppWrapperPage.route,
-                              arguments:
-                                  'https://${plugin.basic.name}.polkassembly.io/',
+                              arguments: {
+                                'params':
+                                    'https://${plugin.basic.name}.polkassembly.io/'
+                              },
                               // "https://polkadot.js.org/apps/",
                             ),
                           ),

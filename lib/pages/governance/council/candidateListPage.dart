@@ -10,6 +10,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/roundedButton.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class CandidateListPage extends StatefulWidget {
   CandidateListPage(this.plugin, this.keyring);
@@ -52,7 +53,8 @@ class _CandidateList extends State<CandidateListPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    List args = ModalRoute.of(context).settings.arguments;
+    List args =
+        Utils.getParams(ModalRoute.of(context).settings.arguments) as List;
     if (args.length > 0) {
       List<List> ls = List<List>.from(args);
       setState(() {

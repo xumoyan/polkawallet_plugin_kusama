@@ -12,6 +12,7 @@ import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_ui/utils/i18n.dart';
 import 'package:polkawallet_ui/utils/index.dart';
+import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
 class ReferendumVotePage extends StatefulWidget {
   ReferendumVotePage(this.plugin, this.keyring);
@@ -37,7 +38,8 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
     if (_formKey.currentState.validate()) {
       final govDic = I18n.of(context).getDic(i18n_full_dic_kusama, 'gov');
       final decimals = widget.plugin.networkState.tokenDecimals[0];
-      final Map args = ModalRoute.of(context).settings.arguments;
+      final Map args =
+          Utils.getParams(ModalRoute.of(context).settings.arguments) as Map;
       final ReferendumInfo info = args['referenda'];
       final bool voteYes = args['voteYes'];
       final amt = _amountCtrl.text.trim();
@@ -117,7 +119,8 @@ class _ReferendumVoteState extends State<ReferendumVotePage> {
           final balance = Fmt.balanceInt(
               widget.plugin.balances.native.freeBalance.toString());
 
-          Map args = ModalRoute.of(context).settings.arguments;
+          Map args =
+              Utils.getParams(ModalRoute.of(context).settings.arguments) as Map;
           ReferendumInfo info = args['referenda'];
           bool voteYes = args['voteYes'];
           return SafeArea(
