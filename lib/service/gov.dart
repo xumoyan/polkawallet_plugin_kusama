@@ -1,6 +1,9 @@
 import 'package:polkawallet_plugin_kusama/polkawallet_plugin_kusama.dart';
+import 'package:polkawallet_plugin_kusama/service/walletApi.dart';
 import 'package:polkawallet_plugin_kusama/store/index.dart';
 import 'package:polkawallet_sdk/api/api.dart';
+import 'package:polkawallet_sdk/api/types/gov/proposalInfoData.dart';
+import 'package:polkawallet_sdk/api/types/gov/referendumInfoData.dart';
 import 'package:polkawallet_sdk/api/types/gov/treasuryOverviewData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 
@@ -12,23 +15,23 @@ class ApiGov {
   final PluginKusama plugin;
   final Keyring keyring;
   final PolkawalletApi api;
-  final PluginStore store;
+  final PluginStore? store;
 
   Future<void> updateIconsAndIndices(List addresses) async {
     final ls = addresses.toList();
-    ls.removeWhere((e) => store.accounts.addressIconsMap.keys.contains(e));
+    ls.removeWhere((e) => store!.accounts.addressIconsMap.keys.contains(e));
 
-    final List<List> res = await Future.wait([
+    final List<List?> res = await Future.wait([
       api.account.getAddressIcons(ls),
       api.account.queryIndexInfo(ls),
     ]);
-    store.accounts.setAddressIconsMap(res[0]);
-    store.accounts.setAddressIndex(res[1]);
+    store!.accounts.setAddressIconsMap(res[0]!);
+    store!.accounts.setAddressIndex(res[1]!);
   }
 
   Future<void> subscribeBestNumber() async {
     api.setting.subscribeBestNumber((bestNum) {
-      store.gov.setBestNumber(BigInt.parse(bestNum.toString()));
+      store!.gov.setBestNumber(BigInt.parse(bestNum.toString()));
     });
   }
 
@@ -37,31 +40,57 @@ class ApiGov {
   }
 
   Future<void> updateBestNumber() async {
-    final bestNumber = await api.service.webView
+    final bestNumber = await api.service.webView!
         .evalJavascript('api.derive.chain.bestNumber()');
-    store.gov.setBestNumber(BigInt.parse(bestNumber.toString()));
+    store!.gov.setBestNumber(BigInt.parse(bestNumber.toString()));
   }
 
-  Future<List> getReferendumVoteConvictions() async {
-    final List res = await api.gov.getReferendumVoteConvictions();
-    store.gov.setReferendumVoteConvictions(res);
+  Future<List?> getReferendumVoteConvictions() async {
+    final List? res = await api.gov.getReferendumVoteConvictions();
+    store!.gov.setReferendumVoteConvictions(res);
     return res;
   }
 
-  Future<List> queryReferendums() async {
-    final data = await api.gov.queryReferendums(keyring.current.address);
-    store.gov.setReferendums(data);
+  Future<List<ReferendumInfo>> queryReferendums() async {
+    final data = await api.gov.queryReferendums(keyring.current.address!);
+    store!.gov.setReferendums(data);
     return data;
+  }
+
+  Future<ProposalInfoData?> queryExternal() async {
+    final data = await api.gov.queryNextExternal();
+
+    if (data != null) {
+      store!.gov.setExternal(data);
+
+      updateIconsAndIndices([data.image!.proposer!]);
+    }
+    return data;
+  }
+
+  Future<void> queryReferendumStatus(List<int> ids) async {
+    final data = await Future.wait(ids
+        .map((e) => WalletApi.getDemocracyReferendumInfo(e,
+            network: plugin.basic.name!))
+        .toList());
+    final res = {};
+    data.forEach((e) {
+      if ((e ?? {})['data'] != null) {
+        final id = (e ?? {})['data']['info']['referendum_index'];
+        res[id] = (e ?? {})['data']['info']['status'];
+      }
+    });
+    store!.gov.setReferendumStatus(res);
   }
 
   Future<List> queryProposals() async {
     final data = await api.gov.queryProposals();
-    store.gov.setProposals(data);
+    store!.gov.setProposals(data);
 
-    final List<String> addresses = [];
+    final List<String?> addresses = [];
     data.forEach((e) {
       addresses.add(e.proposer);
-      addresses.addAll(e.seconds);
+      addresses.addAll(e.seconds!);
     });
     updateIconsAndIndices(addresses);
 
@@ -69,22 +98,22 @@ class ApiGov {
   }
 
   Future<Map> queryCouncilVotes() async {
-    final Map votes = await api.gov.queryCouncilVotes();
-    store.gov.setCouncilVotes(votes);
+    final dynamic votes = await api.gov.queryCouncilVotes();
+    store!.gov.setCouncilVotes(votes);
     return votes;
   }
 
   Future<Map> queryUserCouncilVote() async {
-    final Map votes =
-        await api.gov.queryUserCouncilVote(keyring.current.address);
-    store.gov.setUserCouncilVotes(votes);
+    final dynamic votes =
+        await api.gov.queryUserCouncilVote(keyring.current.address!);
+    store!.gov.setUserCouncilVotes(votes);
     return votes;
   }
 
-  Future<Map> queryCouncilInfo() async {
-    Map info = await api.gov.queryCouncilInfo();
+  Future<Map?> queryCouncilInfo() async {
+    Map? info = await api.gov.queryCouncilInfo();
     if (info != null) {
-      store.gov.setCouncilInfo(info);
+      store!.gov.setCouncilInfo(info);
 
       final List all = [];
       all.addAll(info['members'].map((i) => i[0]));
@@ -96,11 +125,11 @@ class ApiGov {
     return info;
   }
 
-  Future<List> queryCouncilMembers() async {
-    final List members =
-        await api.service.webView.evalJavascript('api.query.council.members()');
+  Future<List?> queryCouncilMembers() async {
+    final dynamic members = await api.service.webView!
+        .evalJavascript('api.query.council.members()');
     if (members != null) {
-      store.gov.setCouncilInfo(Map<String, dynamic>.from({
+      store!.gov.setCouncilInfo(Map<String, dynamic>.from({
         'members': members.map((e) => [e]).toList(),
       }));
 
@@ -112,21 +141,21 @@ class ApiGov {
 
   Future<List<CouncilMotionData>> queryCouncilMotions() async {
     final data = await api.gov.queryCouncilMotions();
-    store.gov.setCouncilMotions(data);
+    store!.gov.setCouncilMotions(data);
     return data;
   }
 
   Future<TreasuryOverviewData> queryTreasuryOverview() async {
     final data = await api.gov.queryTreasuryOverview();
-    store.gov.setTreasuryOverview(data);
+    store!.gov.setTreasuryOverview(data);
 
-    final List<String> addresses = [];
+    final List<String?> addresses = [];
     final List<SpendProposalData> allProposals =
-        store.gov.treasuryOverview.proposals.toList();
-    allProposals.addAll(store.gov.treasuryOverview.approvals);
+        store!.gov.treasuryOverview.proposals!.toList();
+    allProposals.addAll(store!.gov.treasuryOverview.approvals!);
     allProposals.forEach((e) {
-      addresses.add(e.proposal.proposer);
-      addresses.add(e.proposal.beneficiary);
+      addresses.add(e.proposal!.proposer);
+      addresses.add(e.proposal!.beneficiary);
     });
     updateIconsAndIndices(addresses);
 
@@ -135,10 +164,10 @@ class ApiGov {
 
   Future<List> queryTreasuryTips() async {
     final data = await api.gov.queryTreasuryTips();
-    store.gov.setTreasuryTips(data);
+    store!.gov.setTreasuryTips(data);
 
-    List<String> addresses = [];
-    store.gov.treasuryTips.toList().forEach((e) {
+    List<String?> addresses = [];
+    store!.gov.treasuryTips!.toList().forEach((e) {
       addresses.add(e.who);
       if (e.finder != null) {
         addresses.add(e.finder);

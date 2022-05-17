@@ -5,7 +5,8 @@ import 'package:polkawallet_plugin_kusama/store/staking/types/txData.dart';
 import 'package:polkawallet_plugin_kusama/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/txDetail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
@@ -18,15 +19,16 @@ class RewardDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'common');
-    final dicStaking = I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
-    final decimals = plugin.networkState.tokenDecimals[0];
-    final symbol = plugin.networkState.tokenSymbol[0];
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_kusama, 'common')!;
+    final dicStaking =
+        I18n.of(context)!.getDic(i18n_full_dic_kusama, 'staking')!;
+    final decimals = plugin.networkState.tokenDecimals![0];
+    final symbol = plugin.networkState.tokenSymbol![0];
     final TxRewardData detail =
-        Utils.getParams(ModalRoute.of(context).settings.arguments)
+        Utils.getParams(ModalRoute.of(context)!.settings.arguments)
             as TxRewardData;
 
-    return TxDetail(
+    return PluginTxDetail(
       networkName: plugin.basic.name,
       success: true,
       action: detail.eventId,
@@ -35,15 +37,19 @@ class RewardDetailPage extends StatelessWidget {
       eventId: detail.eventIndex,
       infoItems: <TxDetailInfoItem>[
         TxDetailInfoItem(
-            label: dicStaking['txs.event'], content: Text(detail.eventId)),
+            label: dicStaking['txs.event'],
+            content: Text(detail.eventId!,
+                style: TextStyle(color: PluginColorsDark.headline1))),
         TxDetailInfoItem(
           label: dic['amount'],
-          content: Text('${Fmt.balance(detail.amount, decimals)} $symbol'),
+          content: Text('${Fmt.balance(detail.amount!, decimals)} $symbol',
+              style: TextStyle(color: PluginColorsDark.headline1)),
         ),
       ],
       blockTime: Fmt.dateTime(
-          DateTime.fromMillisecondsSinceEpoch(detail.blockTimestamp * 1000)),
+          DateTime.fromMillisecondsSinceEpoch(detail.blockTimestamp! * 1000)),
       blockNum: detail.blockNum,
+      current: keyring.current,
     );
   }
 }

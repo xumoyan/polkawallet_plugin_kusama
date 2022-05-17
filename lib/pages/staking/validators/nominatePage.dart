@@ -8,7 +8,9 @@ import 'package:polkawallet_plugin_kusama/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
-import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
+import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 
 class NominatePage extends StatefulWidget {
   NominatePage(this.plugin, this.keyring);
@@ -30,11 +32,11 @@ class _NominatePageState extends State<NominatePage> {
 
   @override
   Widget build(BuildContext context) {
-    var dicStaking = I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
+    var dicStaking = I18n.of(context)!.getDic(i18n_full_dic_kusama, 'staking')!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(dicStaking['action.nominate']),
+    return PluginScaffold(
+      appBar: PluginAppBar(
+        title: Text(dicStaking['action.nominate']!),
         centerTitle: true,
       ),
       body: Builder(builder: (BuildContext context) {

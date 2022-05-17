@@ -6,9 +6,11 @@ import 'package:polkawallet_plugin_kusama/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/addressFormItem.dart';
 import 'package:polkawallet_ui/components/txButton.dart';
 import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginAddressFormItem.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTxButton.dart';
 
 class SetControllerPage extends StatefulWidget {
   SetControllerPage(this.plugin, this.keyring);
@@ -20,13 +22,13 @@ class SetControllerPage extends StatefulWidget {
 }
 
 class _SetControllerPageState extends State<SetControllerPage> {
-  KeyPairData _controller;
+  KeyPairData? _controller;
 
   Future<void> _changeControllerId(BuildContext context) async {
     var acc = await Navigator.of(context).pushNamed(ControllerSelectPage.route);
     if (acc != null) {
       setState(() {
-        _controller = acc;
+        _controller = acc as KeyPairData?;
       });
     }
   }
@@ -35,68 +37,95 @@ class _SetControllerPageState extends State<SetControllerPage> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final KeyPairData acc =
-          Utils.getParams(ModalRoute.of(context).settings.arguments)
-              as KeyPairData;
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      final KeyPairData? acc =
+          Utils.getParams(ModalRoute.of(context)!.settings.arguments)
+              as KeyPairData?;
       setState(() {
         _controller = acc;
       });
+
+      widget.plugin.service.staking.queryAccountBondedInfo();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
+    final dic = I18n.of(context)!.getDic(i18n_full_dic_kusama, 'staking')!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(dic['action.control']),
+    return PluginScaffold(
+      appBar: PluginAppBar(
+        title: Text(dic['v3.account']!),
         centerTitle: true,
       ),
       body: Builder(builder: (BuildContext context) {
         final controller = _controller ?? widget.keyring.current;
+
+        final isStash = widget.plugin.store.staking.ownStashInfo!.isOwnStash! ||
+            (!widget.plugin.store.staking.ownStashInfo!.isOwnStash! &&
+                !widget.plugin.store.staking.ownStashInfo!.isOwnController!);
         return SafeArea(
           child: Column(
             children: <Widget>[
               Expanded(
                 child: ListView(
+                  physics: BouncingScrollPhysics(),
                   padding: EdgeInsets.all(16),
                   children: <Widget>[
-                    AddressFormItem(
-                      widget.keyring.current,
-                      label: dic['stash'],
+                    PluginAddressFormItem(
+                      account: widget.keyring.current,
+                      label: isStash ? dic['stash'] : dic['controller'],
                     ),
-                    AddressFormItem(
-                      controller,
-                      label: dic['controller'],
-                      svg: controller.icon ??
-                          widget.plugin.store.accounts
+                    Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: PluginAddressFormItem(
+                          account: controller,
+                          label: isStash ? dic['controller'] : dic['stash'],
+                          svg: widget.plugin.store.accounts
                               .addressIconsMap[controller.address],
-                      onTap: () => _changeControllerId(context),
-                    ),
+                          isDisable: false,
+                          onTap: isStash
+                              ? () => _changeControllerId(context)
+                              : null,
+                        )),
                   ],
                 ),
               ),
               Padding(
                 padding: EdgeInsets.all(16),
-                child: TxButton(
+                child: PluginTxButton(
                   getTxParams: () async {
+                    if (!isStash) {
+                      showCupertinoDialog(
+                          context: context,
+                          builder: (_) {
+                            return CupertinoAlertDialog(
+                              content: Text(dic['v3.controllerError']!),
+                              actions: <Widget>[
+                                CupertinoDialogAction(
+                                  child: Text(dic['v3.iUnderstand']!),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            );
+                          });
+                      return null;
+                    }
                     var currentController = Utils.getParams(
-                        ModalRoute.of(context).settings.arguments);
+                        ModalRoute.of(context)!.settings.arguments);
                     if (currentController != null &&
-                        _controller.pubKey ==
+                        _controller!.pubKey ==
                             (currentController as KeyPairData).pubKey) {
                       showCupertinoDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return CupertinoAlertDialog(
                             title: Container(),
-                            content: Text(dic['controller.warn']),
+                            content: Text(dic['controller.warn']!),
                             actions: <Widget>[
                               CupertinoButton(
-                                child: Text(I18n.of(context).getDic(
-                                    i18n_full_dic_kusama, 'common')['ok']),
+                                child: Text(I18n.of(context)!.getDic(
+                                    i18n_full_dic_kusama, 'common')!['ok']!),
                                 onPressed: () => Navigator.of(context).pop(),
                               ),
                             ],
@@ -110,14 +139,23 @@ class _SetControllerPageState extends State<SetControllerPage> {
                       txTitle: dic['action.control'],
                       module: 'staking',
                       call: 'setController',
-                      txDisplay: {"controllerId": controller.address},
+                      txDisplayBold: {
+                        "controller": Container(
+                          margin: EdgeInsets.only(right: 16),
+                          child: PluginAddressFormItem(
+                            account: controller,
+                            svg: controller.icon,
+                          ),
+                        )
+                      },
                       params: [
                         // "address"
                         controller.address,
                       ],
+                      isPlugin: true,
                     );
                   },
-                  onFinish: (Map res) {
+                  onFinish: (Map? res) {
                     if (res != null) {
                       Navigator.of(context).pop(res);
                     }

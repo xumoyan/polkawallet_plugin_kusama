@@ -5,40 +5,75 @@ const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
 
 const node_list_kusama = [
   {
-    'name': 'Kusama (Polkadot Canary, hosted by PatractLabs)',
+    'name': 'Kusama (via PatractLabs)',
     'ss58': 2,
-    'endpoint': 'wss://kusama.elara.patract.io',
+    'endpoint': 'wss://pub.elara.patract.io/kusama',
   },
   {
-    'name': 'Kusama (Polkadot Canary, hosted by Parity)',
+    'name': 'Kusama (via Parity)',
     'ss58': 2,
     'endpoint': 'wss://kusama-rpc.polkadot.io/',
   },
   {
-    'name': 'Kusama (Polkadot Canary, hosted by onfinality)',
+    'name': 'Kusama (via OnFinality)',
     'ss58': 2,
     'endpoint': 'wss://kusama.api.onfinality.io/public-ws',
   },
+  {
+    'name': 'Kusama (via Geometry Labs)',
+    'ss58': 2,
+    'endpoint': 'wss://kusama.geometry.io/websockets',
+  },
+  {
+    'name': 'Kusama (via Dwellir)',
+    'ss58': 2,
+    'endpoint': 'wss://kusama-rpc.dwellir.com',
+  },
+  // {
+  //   'name': 'Kusama (cross chain 9110 dev)',
+  //   'ss58': 42,
+  //   'endpoint': 'wss://kusama-1.polkawallet.io:9944',
+  // },
+  // {
+  //   'name': 'Kusama (cross chain 9100 dev)',
+  //   'ss58': 42,
+  //   'endpoint': 'wss://crosschain-dev.polkawallet.io:9906',
+  // },
 ];
 const node_list_polkadot = [
   {
-    'name': 'Polkadot (Live, hosted by PatractLabs)',
+    'name': 'Polkadot (via PatractLabs)',
     'ss58': 0,
-    'endpoint': 'wss://polkadot.elara.patract.io',
+    'endpoint': 'wss://pub.elara.patract.io/polkadot',
   },
   {
-    'name': 'Polkadot (Live, hosted by Parity)',
+    'name': 'Polkadot (via Parity)',
     'ss58': 0,
     'endpoint': 'wss://rpc.polkadot.io',
   },
   {
-    'name': 'Polkadot (Live, hosted by onfinality)',
+    'name': 'Polkadot (via OnFinality)',
     'ss58': 0,
     'endpoint': 'wss://polkadot.api.onfinality.io/public-ws',
   },
+  {
+    'name': 'Polkadot (via Geometry Labs)',
+    'ss58': 0,
+    'endpoint': 'wss://polkadot.geometry.io/websockets',
+  },
+  // {
+  //   'name': 'Polkadot (light client - experimental)',
+  //   'ss58': 0,
+  //   'endpoint': 'light://substrate-connect/polkadot',
+  // },
+  // {
+  //   'name': 'Polkadot (aca crowdloan dev)',
+  //   'ss58': 0,
+  //   'endpoint': 'wss://karura-test-node.laminar.codes/polkadot',
+  // },
 ];
 
-const home_nav_items = ['staking', 'governance'];
+const home_nav_items = ['staking', 'governance', 'parachain'];
 
 const MaterialColor kusama_black = const MaterialColor(
   0xFF222222,

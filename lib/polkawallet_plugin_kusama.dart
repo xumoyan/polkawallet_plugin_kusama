@@ -1,31 +1,21 @@
 library polkawallet_plugin_kusama;
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:polkawallet_plugin_kusama/common/constants.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/council/candidateDetailPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/council/candidateListPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/council/councilPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/council/councilVotePage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/council/motionDetailPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/democracy/democracyPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/democracy/proposalDetailPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/democracy/referendumVotePage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/treasury/spendProposalPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/treasury/submitProposalPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/treasury/submitTipPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/treasury/tipDetailPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/governance/treasury/treasuryPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/staking.dart';
+import 'package:polkawallet_plugin_kusama/pages/governanceNew/candidateDetailPage.dart';
+import 'package:polkawallet_plugin_kusama/pages/governanceNew/councilPage.dart';
+import 'package:polkawallet_plugin_kusama/pages/governanceNew/councilVotePage.dart';
+import 'package:polkawallet_plugin_kusama/pages/governanceNew/governancePage.dart';
+import 'package:polkawallet_plugin_kusama/pages/governanceNew/referendumVotePage.dart';
+import 'package:polkawallet_plugin_kusama/pages/governanceNew/treasuryPage.dart';
+import 'package:polkawallet_plugin_kusama/pages/parasNew/contributePage.dart';
+import 'package:polkawallet_plugin_kusama/pages/parasNew/parasPage.dart';
 import 'package:polkawallet_plugin_kusama/pages/staking/actions/bondExtraPage.dart';
 import 'package:polkawallet_plugin_kusama/pages/staking/actions/controllerSelectPage.dart';
 import 'package:polkawallet_plugin_kusama/pages/staking/actions/payoutPage.dart';
-import 'package:polkawallet_plugin_kusama/pages/staking/actions/rebondPage.dart';
 import 'package:polkawallet_plugin_kusama/pages/staking/actions/redeemPage.dart';
 import 'package:polkawallet_plugin_kusama/pages/staking/actions/rewardDetailPage.dart';
 import 'package:polkawallet_plugin_kusama/pages/staking/actions/setControllerPage.dart';
@@ -36,6 +26,10 @@ import 'package:polkawallet_plugin_kusama/pages/staking/actions/unbondPage.dart'
 import 'package:polkawallet_plugin_kusama/pages/staking/validators/nominatePage.dart';
 import 'package:polkawallet_plugin_kusama/pages/staking/validators/validatorChartsPage.dart';
 import 'package:polkawallet_plugin_kusama/pages/staking/validators/validatorDetailPage.dart';
+import 'package:polkawallet_plugin_kusama/pages/stakingNew/RewardDetailPage.dart';
+import 'package:polkawallet_plugin_kusama/pages/stakingNew/overViewPage.dart';
+import 'package:polkawallet_plugin_kusama/pages/stakingNew/stakingHistoryPage.dart';
+import 'package:polkawallet_plugin_kusama/pages/stakingNew/stakingPage.dart';
 import 'package:polkawallet_plugin_kusama/service/index.dart';
 import 'package:polkawallet_plugin_kusama/store/cache/storeCache.dart';
 import 'package:polkawallet_plugin_kusama/store/index.dart';
@@ -47,7 +41,7 @@ import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/storage/types/keyPairData.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_ui/pages/dAppWrapperPage.dart';
-import 'package:polkawallet_ui/pages/txConfirmPage.dart';
+import 'package:polkawallet_ui/pages/v3/txConfirmPage.dart';
 import 'package:polkawallet_ui/pages/walletExtensionSignPage.dart';
 import 'package:flutter_boost/flutter_boost.dart';
 import 'package:flutter/cupertino.dart';
@@ -72,8 +66,9 @@ class PluginKusama extends PolkawalletPlugin {
               'packages/polkawallet_plugin_kusama/assets/images/public/$name.png'),
           iconDisabled: Image.asset(
               'packages/polkawallet_plugin_kusama/assets/images/public/${name}_gray.png'),
-          jsCodeVersion: 21001,
+          jsCodeVersion: 31501,
           isTestNet: false,
+          isXCMSupport: name == network_name_kusama,
         ),
         recoveryEnabled = name == network_name_kusama,
         _cache = name == network_name_kusama
@@ -89,13 +84,9 @@ class PluginKusama extends PolkawalletPlugin {
   @override
   List<NetworkParams> get nodeList {
     if (basic.name == network_name_polkadot) {
-      return _randomList(node_list_polkadot)
-          .map((e) => NetworkParams.fromJson(e))
-          .toList();
+      return node_list_polkadot.map((e) => NetworkParams.fromJson(e)).toList();
     }
-    return _randomList(node_list_kusama)
-        .map((e) => NetworkParams.fromJson(e))
-        .toList();
+    return node_list_kusama.map((e) => NetworkParams.fromJson(e)).toList();
   }
 
   @override
@@ -109,19 +100,15 @@ class PluginKusama extends PolkawalletPlugin {
   @override
   List<HomeNavItem> getNavItems(BuildContext context, Keyring keyring) {
     return home_nav_items.map((e) {
-      final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'common');
+      final dic = I18n.of(context)!.getDic(i18n_full_dic_kusama, 'common')!;
       return HomeNavItem(
-        text: dic[e],
-        icon: SvgPicture.asset(
-          'packages/polkawallet_plugin_kusama/assets/images/public/nav_$e.svg',
-          color: Theme.of(context).disabledColor,
-        ),
-        iconActive: SvgPicture.asset(
-          'packages/polkawallet_plugin_kusama/assets/images/public/nav_$e.svg',
-          color: basic.primaryColor,
-        ),
-        content: e == 'staking' ? Staking(this, keyring) : Gov(this),
-      );
+          text: dic[e]!,
+          icon: Container(),
+          iconActive: Container(),
+          content: Container(),
+          onTap: () {
+            Navigator.of(context).pushNamed('/$e/index');
+          });
     }).toList();
   }
 
@@ -275,10 +262,10 @@ class PluginKusama extends PolkawalletPlugin {
   }
 
   @override
-  Future<String> loadJSCode() => null;
+  Future<String>? loadJSCode() => null;
 
-  PluginStore _store;
-  PluginApi _service;
+  late PluginStore _store;
+  late PluginApi _service;
   PluginStore get store => _store;
   PluginApi get service => _service;
 
@@ -307,25 +294,13 @@ class PluginKusama extends PolkawalletPlugin {
     _service = PluginApi(this, keyring);
   }
 
-  @override
-  Future<void> onStarted(Keyring keyring) async {
-    _service.staking.queryElectedInfo();
-  }
+  // @override
+  // Future<void> onStarted(Keyring keyring) async {
+  //   _service.staking.queryElectedInfo();
+  // }
 
   @override
   Future<void> onAccountChanged(KeyPairData acc) async {
     _store.staking.loadAccountCache(acc.pubKey);
-  }
-
-  List _randomList(List input) {
-    final data = input.toList();
-    final res = List();
-    final _random = Random();
-    for (var i = 0; i < input.length; i++) {
-      final item = data[_random.nextInt(data.length)];
-      res.add(item);
-      data.remove(item);
-    }
-    return res;
   }
 }

@@ -5,7 +5,9 @@ import 'package:polkawallet_plugin_kusama/polkawallet_plugin_kusama.dart';
 import 'package:polkawallet_plugin_kusama/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/addressIcon.dart';
+import 'package:polkawallet_ui/components/v3/addressIcon.dart';
+import 'package:polkawallet_ui/components/v3/back.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 
 class ControllerSelectPage extends StatelessWidget {
@@ -18,23 +20,21 @@ class ControllerSelectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Observer(
         builder: (_) {
-          final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(dic['controller']),
-              centerTitle: true,
-            ),
+          final dic =
+              I18n.of(context)!.getDic(i18n_full_dic_kusama, 'staking')!;
+          return PluginScaffold(
+            appBar: PluginAppBar(
+                title: Text(dic['controller']!), centerTitle: true),
             body: SafeArea(
               child: Container(
-                color: Theme.of(context).cardColor,
                 child: ListView(
                   padding: EdgeInsets.all(16),
                   children: keyring.allAccounts.map((i) {
-                    String unavailable;
+                    String? unavailable;
                     final stashOf = plugin
-                        .store.staking.accountBondedMap[i.pubKey].controllerId;
-                    String controllerOf =
-                        plugin.store.staking.accountBondedMap[i.pubKey].stashId;
+                        .store.staking.accountBondedMap[i.pubKey]?.controllerId;
+                    String? controllerOf = plugin
+                        .store.staking.accountBondedMap[i.pubKey]?.stashId;
                     if (stashOf != null && i.pubKey != keyring.current.pubKey) {
                       unavailable =
                           '${dic['controller.stashOf']} ${Fmt.address(stashOf)}';
@@ -44,11 +44,10 @@ class ControllerSelectPage extends StatelessWidget {
                       unavailable =
                           '${dic['controller.controllerOf']} ${Fmt.address(controllerOf)}';
                     }
-                    Color grey = Theme.of(context).disabledColor;
-                    return GestureDetector(
-                      child: Container(
-                        padding: EdgeInsets.only(bottom: 16),
-                        color: Theme.of(context).cardColor,
+                    Color grey = Color(0xFFFF7849);
+                    return Column(children: [
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         child: Row(
                           children: <Widget>[
                             Padding(
@@ -62,7 +61,7 @@ class ControllerSelectPage extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
-                                          i.name,
+                                          i.name!,
                                           style: TextStyle(color: grey),
                                         ),
                                         Text(
@@ -82,24 +81,35 @@ class ControllerSelectPage extends StatelessWidget {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
-                                        Text(i.name),
-                                        Text(Fmt.address(i.address)),
+                                        Text(i.name!,
+                                            style:
+                                                TextStyle(color: Colors.white)),
+                                        Text(Fmt.address(i.address),
+                                            style:
+                                                TextStyle(color: Colors.white)),
                                       ],
                                     ),
                             ),
-                            unavailable == null
-                                ? Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 18,
-                                  )
-                                : Container()
+                            Visibility(
+                                visible: unavailable == null,
+                                child: Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 18,
+                                  color: Colors.white,
+                                ))
                           ],
                         ),
+                        onTap: unavailable == null
+                            ? () => Navigator.of(context).pop(i)
+                            : null,
                       ),
-                      onTap: unavailable == null
-                          ? () => Navigator.of(context).pop(i)
-                          : null,
-                    );
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Divider(
+                            color: Colors.white.withAlpha(36),
+                            height: 20,
+                          ))
+                    ]);
                   }).toList(),
                 ),
               ),

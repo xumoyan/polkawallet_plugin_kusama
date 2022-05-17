@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:polkawallet_sdk/plugin/index.dart';
 
 import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 

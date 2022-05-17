@@ -7,7 +7,8 @@ import 'package:polkawallet_plugin_kusama/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/api/types/txData.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
-import 'package:polkawallet_ui/components/txDetail.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginTxDetail.dart';
+import 'package:polkawallet_ui/utils/consts.dart';
 import 'package:polkawallet_ui/utils/format.dart';
 import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
 
@@ -19,18 +20,22 @@ class StakingDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dicStaking = I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
-    final decimals = plugin.networkState.tokenDecimals[0];
-    final symbol = plugin.networkState.tokenSymbol[0];
+    final dicStaking =
+        I18n.of(context)!.getDic(i18n_full_dic_kusama, 'staking')!;
+    final decimals = plugin.networkState.tokenDecimals![0];
+    final symbol = plugin.networkState.tokenSymbol![0];
     final TxData detail =
-        Utils.getParams(ModalRoute.of(context).settings.arguments) as TxData;
+        Utils.getParams(ModalRoute.of(context)!.settings.arguments) as TxData;
     List<TxDetailInfoItem> info = <TxDetailInfoItem>[
-      TxDetailInfoItem(label: dicStaking['action'], content: Text(detail.call)),
+      TxDetailInfoItem(
+          label: dicStaking['action'],
+          content: Text(detail.call!,
+              style: TextStyle(color: PluginColorsDark.headline1))),
     ];
-    List params = detail.params.isEmpty ? [] : jsonDecode(detail.params);
+    List? params = detail.params!.isEmpty ? [] : jsonDecode(detail.params!);
     if (params != null) {
       info.addAll(params.map((i) {
-        String value = i['value'].toString();
+        String? value = i['value'].toString();
         switch (i['type']) {
           case "Address":
             value = Fmt.address(value);
@@ -43,9 +48,10 @@ class StakingDetailPage extends StatelessWidget {
             final ss58 = plugin.sdk.api.connectedNode?.ss58;
             final pubKeyAddressMap = plugin.store.accounts.pubKeyAddressMap;
             final address = ss58 != null &&
+                    // ignore: unnecessary_null_comparison
                     pubKeyAddressMap != null &&
                     pubKeyAddressMap[ss58] != null
-                ? pubKeyAddressMap[ss58][value]
+                ? pubKeyAddressMap[ss58]![value]
                 : value;
             value = Fmt.address(address ?? value);
             break;
@@ -69,21 +75,26 @@ class StakingDetailPage extends StatelessWidget {
         }
         return TxDetailInfoItem(
           label: i['name'],
-          content: Text(value),
+          content: Text(
+            value!,
+            style: TextStyle(color: PluginColorsDark.headline1),
+          ),
         );
       }));
     }
-    return TxDetail(
+    return PluginTxDetail(
       networkName: plugin.basic.name,
       success: detail.success,
       action: detail.call,
-      fee: '${Fmt.balance(detail.fee, decimals)} $symbol',
+      fee:
+          '${Fmt.priceFloorBigInt(Fmt.balanceInt(detail.fee!), decimals, lengthMax: 6)} $symbol',
       hash: detail.hash,
       eventId: detail.txNumber,
       infoItems: info,
       blockTime: Fmt.dateTime(
-          DateTime.fromMillisecondsSinceEpoch(detail.blockTimestamp * 1000)),
+          DateTime.fromMillisecondsSinceEpoch(detail.blockTimestamp! * 1000)),
       blockNum: detail.blockNum,
+      current: keyring.current,
     );
   }
 }

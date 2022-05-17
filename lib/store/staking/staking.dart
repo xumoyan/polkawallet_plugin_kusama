@@ -30,20 +30,20 @@ abstract class _StakingStore with Store {
   Map overview = Map();
 
   @observable
-  Map nominationsMap = Map();
+  Map? nominationsMap = Map();
 
   @observable
-  OwnStashInfoData ownStashInfo;
+  Map? nominationsCount = Map();
 
   @observable
-  Map<String, AccountBondedInfo> accountBondedMap =
+  OwnStashInfoData? ownStashInfo;
+
+  @observable
+  Map<String?, AccountBondedInfo> accountBondedMap =
       Map<String, AccountBondedInfo>();
 
   @observable
   bool txsLoading = false;
-
-  @observable
-  int txsCount = 0;
 
   @observable
   ObservableList<TxData> txs = ObservableList<TxData>();
@@ -56,34 +56,38 @@ abstract class _StakingStore with Store {
       ObservableMap<String, dynamic>();
 
   @observable
-  ObservableMap<String, dynamic> stakesChartDataCache =
-      ObservableMap<String, dynamic>();
+  ObservableMap<String?, double> marketPrices = ObservableMap();
 
-  @observable
-  Map recommendedValidators = {};
+  // @observable
+  // Map? recommendedValidators = {};
 
   @computed
   List<ValidatorData> get nominatingList {
     if (ownStashInfo == null ||
-        ownStashInfo.nominating == null ||
-        ownStashInfo.nominating.length == 0) {
+        ownStashInfo!.nominating == null ||
+        ownStashInfo!.nominating!.length == 0) {
       return [];
     }
     return List.of(validatorsInfo
-        .where((i) => ownStashInfo.nominating.indexOf(i.accountId) >= 0));
+        .where((i) => ownStashInfo!.nominating!.indexOf(i.accountId!) >= 0));
   }
 
   @computed
   BigInt get accountUnlockingTotal {
     BigInt res = BigInt.zero;
-    if (ownStashInfo == null || ownStashInfo.stakingLedger == null) {
+    if (ownStashInfo == null || ownStashInfo!.stakingLedger == null) {
       return res;
     }
 
-    List.of(ownStashInfo.stakingLedger['unlocking']).forEach((i) {
+    List.of(ownStashInfo!.stakingLedger!['unlocking']).forEach((i) {
       res += BigInt.parse(i['value'].toString());
     });
     return res;
+  }
+
+  @action
+  void setMarketPrices(Map<String?, double> data) {
+    marketPrices.addAll(data);
   }
 
   @action
@@ -96,6 +100,9 @@ abstract class _StakingStore with Store {
       'totalStaked': data['totalStaked'],
       'totalIssuance': data['totalIssuance'],
       'minNominated': data['minNominated'],
+      'minNominatorBond': data['minNominatorBond'],
+      'counterForNominators': data['counterForNominators'],
+      'lastReward': data['lastReward'],
     };
 
     // all validators
@@ -107,7 +114,7 @@ abstract class _StakingStore with Store {
     List<ValidatorData> elected = [];
     List<ValidatorData> waiting = [];
     validatorsAll.forEach((e) {
-      if (e.isActive) {
+      if (e.isActive!) {
         elected.add(e);
       } else {
         waiting.add(e);
@@ -134,13 +141,18 @@ abstract class _StakingStore with Store {
   }
 
   @action
-  void setNominations(Map data) {
+  void setNominations(Map? data) {
     nominationsMap = data;
   }
 
   @action
-  void setOwnStashInfo(String pubKey, Map data, {bool shouldCache = true}) {
-    ownStashInfo = OwnStashInfoData.fromJson(data);
+  void setNominationsCount(Map? data) {
+    nominationsCount = data;
+  }
+
+  @action
+  void setOwnStashInfo(String? pubKey, Map data, {bool shouldCache = true}) {
+    ownStashInfo = OwnStashInfoData.fromJson(data as Map<String, dynamic>);
 
     if (shouldCache) {
       final cached = cache.stakingOwnStash.val;
@@ -153,7 +165,7 @@ abstract class _StakingStore with Store {
   }
 
   @action
-  void setAccountBondedMap(Map<String, AccountBondedInfo> data) {
+  void setAccountBondedMap(Map<String?, AccountBondedInfo> data) {
     accountBondedMap = data;
   }
 
@@ -163,10 +175,9 @@ abstract class _StakingStore with Store {
   }
 
   @action
-  Future<void> addTxs(Map data, String pubKey,
+  Future<void> addTxs(Map? data, String? pubKey,
       {bool shouldCache = false, reset = false}) async {
     if (data == null || data['extrinsics'] == null) return;
-    txsCount = data['count'];
 
     List<TxData> ls =
         List.of(data['extrinsics']).map((i) => TxData.fromJson(i)).toList();
@@ -184,13 +195,17 @@ abstract class _StakingStore with Store {
   }
 
   @action
-  Future<void> addTxsRewards(Map data, String pubKey,
+  Future<void> addTxsRewards(Map? data, String? pubKey,
       {bool shouldCache = false}) async {
-    if (data['list'] == null) return;
-    List<TxRewardData> ls =
-        List.of(data['list']).map((i) => TxRewardData.fromJson(i)).toList();
+    if (data == null || data['list'] == null) {
+      txsRewards = ObservableList.of([]);
+    } else {
+      List<TxRewardData> ls =
+          List.of(data['list']).map((i) => TxRewardData.fromJson(i)).toList();
+      ls.retainWhere((element) => double.parse(element.amount ?? "0") != 0);
 
-    txsRewards = ObservableList.of(ls);
+      txsRewards = ObservableList.of(ls);
+    }
 
     if (shouldCache) {
       final cached = cache.stakingRewardTxs.val;
@@ -205,12 +220,7 @@ abstract class _StakingStore with Store {
   }
 
   @action
-  void setStakesChartData(String validatorId, Map data) {
-    stakesChartDataCache[validatorId] = data;
-  }
-
-  @action
-  Future<void> loadAccountCache(String pubKey) async {
+  Future<void> loadAccountCache(String? pubKey) async {
     // return if currentAccount not exist
     if (pubKey == null || pubKey.isEmpty) {
       return;
@@ -238,7 +248,7 @@ abstract class _StakingStore with Store {
   }
 
   @action
-  Future<void> loadCache(String pubKey) async {
+  Future<void> loadCache(String? pubKey) async {
     if (cache.validatorsInfo.val.keys.length > 0) {
       setValidatorsInfo(cache.validatorsInfo.val, shouldCache: false);
     } else {
@@ -248,11 +258,14 @@ abstract class _StakingStore with Store {
       );
     }
 
+    // reset bondedMap
+    accountBondedMap = {};
+
     loadAccountCache(pubKey);
   }
 
-  @action
-  Future<void> setRecommendedValidatorList(Map data) async {
-    recommendedValidators = data;
-  }
+  // @action
+  // Future<void> setRecommendedValidatorList(Map? data) async {
+  //   recommendedValidators = data;
+  // }
 }

@@ -1,4 +1,3 @@
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -10,6 +9,8 @@ import 'package:polkawallet_plugin_kusama/utils/i18n/index.dart';
 import 'package:polkawallet_sdk/storage/keyring.dart';
 import 'package:polkawallet_sdk/utils/i18n.dart';
 import 'package:polkawallet_plugin_kusama/utils/Utils.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginLoadingWidget.dart';
+import 'package:polkawallet_ui/components/v3/plugin/pluginScaffold.dart';
 
 class ValidatorChartsPage extends StatelessWidget {
   ValidatorChartsPage(this.plugin, this.keyring);
@@ -17,9 +18,9 @@ class ValidatorChartsPage extends StatelessWidget {
   final PluginKusama plugin;
   final Keyring keyring;
 
-  Future<Map> _getValidatorRewardsData(String accountId) async {
+  Future<Map?> _getValidatorRewardsData(String? accountId) async {
     final rewardsChartData =
-        plugin.store.staking.rewardsChartDataCache[accountId];
+        plugin.store.staking.rewardsChartDataCache[accountId!];
     if (rewardsChartData != null) return rewardsChartData;
     return plugin.service.staking.queryValidatorRewards(accountId);
   }
@@ -27,47 +28,39 @@ class ValidatorChartsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Observer(
         builder: (_) {
-          final dic = I18n.of(context).getDic(i18n_full_dic_kusama, 'staking');
+          final dic =
+              I18n.of(context)!.getDic(i18n_full_dic_kusama, 'staking')!;
           final ValidatorData detail =
-              Utils.getParams(ModalRoute.of(context).settings.arguments)
+              Utils.getParams(ModalRoute.of(context)!.settings.arguments)
                   as ValidatorData;
 
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(dic['validator.chart']),
-              centerTitle: true,
-            ),
+          return PluginScaffold(
+            appBar: PluginAppBar(
+                title: Text(dic['validator.chart']!), centerTitle: true),
             body: SafeArea(
               child: FutureBuilder(
                 future: _getValidatorRewardsData(detail.accountId),
                 builder: (_, data) {
                   if (!data.hasData) {
-                    return Center(child: CupertinoActivityIndicator());
+                    return Center(child: PluginLoadingWidget());
                   }
                   final rewardsChartData = plugin
-                      .store.staking.rewardsChartDataCache[detail.accountId];
+                      .store.staking.rewardsChartDataCache[detail.accountId!];
 
                   List<ChartLineInfo> pointsChartLines = [
-                    ChartLineInfo('Era Points',
-                        charts.MaterialPalette.yellow.shadeDefault),
-                    ChartLineInfo(
-                        'Average', charts.MaterialPalette.gray.shadeDefault),
+                    ChartLineInfo('Era Points', Color(0xFFFF7849)),
+                    ChartLineInfo('Average', Colors.white),
                   ];
 
                   List<ChartLineInfo> rewardChartLines = [
-                    ChartLineInfo(
-                        'Slashes', charts.MaterialPalette.red.shadeDefault),
-                    ChartLineInfo(
-                        'Rewards', charts.MaterialPalette.blue.shadeDefault),
-                    ChartLineInfo(
-                        'Average', charts.MaterialPalette.gray.shadeDefault),
+                    ChartLineInfo('Slashes', Color(0xFF81FEB9)),
+                    ChartLineInfo('Rewards', Color(0xFFFF7849)),
+                    ChartLineInfo('Average', Colors.white),
                   ];
 
                   List<ChartLineInfo> stakesChartLines = [
-                    ChartLineInfo('Elected Stake',
-                        charts.MaterialPalette.yellow.shadeDefault),
-                    ChartLineInfo(
-                        'Average', charts.MaterialPalette.gray.shadeDefault),
+                    ChartLineInfo('Elected Stake', Color(0xFFFF7849)),
+                    ChartLineInfo('Average', Colors.white),
                   ];
                   return ListView(
                     children: <Widget>[
@@ -78,11 +71,11 @@ class ValidatorChartsPage extends StatelessWidget {
                           children: <Widget>[
                             ChartLabel(
                               name: 'Era Points',
-                              color: Colors.yellow,
+                              color: Color(0xFFFF7849),
                             ),
                             ChartLabel(
                               name: 'Average',
-                              color: Colors.grey,
+                              color: Colors.white,
                             ),
                           ],
                         ),
@@ -93,7 +86,7 @@ class ValidatorChartsPage extends StatelessWidget {
                         margin: EdgeInsets.only(bottom: 16),
                         child: rewardsChartData == null
                             ? CupertinoActivityIndicator()
-                            : new RewardsChart.withData(
+                            : RewardsChart.withData(
                                 pointsChartLines,
                                 rewardsChartData['points'][0],
                                 rewardsChartData['points'][1],
@@ -107,15 +100,15 @@ class ValidatorChartsPage extends StatelessWidget {
                           children: <Widget>[
                             ChartLabel(
                               name: 'Rewards',
-                              color: Colors.blue,
+                              color: Color(0xFF81FEB9),
                             ),
                             ChartLabel(
                               name: 'Slashes',
-                              color: Colors.red,
+                              color: Color(0xFFFF7849),
                             ),
                             ChartLabel(
                               name: 'Average',
-                              color: Colors.grey,
+                              color: Colors.white,
                             ),
                           ],
                         ),
@@ -126,7 +119,7 @@ class ValidatorChartsPage extends StatelessWidget {
                         margin: EdgeInsets.only(bottom: 16),
                         child: rewardsChartData == null
                             ? CupertinoActivityIndicator()
-                            : new RewardsChart.withData(
+                            : RewardsChart.withData(
                                 rewardChartLines,
                                 rewardsChartData['rewards'][0],
                                 rewardsChartData['rewards'][1],
@@ -140,11 +133,11 @@ class ValidatorChartsPage extends StatelessWidget {
                           children: <Widget>[
                             ChartLabel(
                               name: 'Elected Stake',
-                              color: Colors.yellow,
+                              color: Color(0xFFFF7849),
                             ),
                             ChartLabel(
                               name: 'Average',
-                              color: Colors.grey,
+                              color: Colors.white,
                             ),
                           ],
                         ),
@@ -155,7 +148,7 @@ class ValidatorChartsPage extends StatelessWidget {
                         margin: EdgeInsets.only(bottom: 16),
                         child: rewardsChartData == null
                             ? CupertinoActivityIndicator()
-                            : new RewardsChart.withData(
+                            : RewardsChart.withData(
                                 stakesChartLines,
                                 List<List>.from([
                                   rewardsChartData['stakes'][0][1],

@@ -1,8 +1,7 @@
 import 'package:mobx/mobx.dart';
 import 'package:polkawallet_plugin_kusama/store/cache/storeCache.dart';
-
-import 'package:polkawallet_sdk/api/types/gov/proposalInfoData.dart';
 import 'package:polkawallet_sdk/api/types/gov/councilInfoData.dart';
+import 'package:polkawallet_sdk/api/types/gov/proposalInfoData.dart';
 import 'package:polkawallet_sdk/api/types/gov/referendumInfoData.dart';
 import 'package:polkawallet_sdk/api/types/gov/treasuryOverviewData.dart';
 import 'package:polkawallet_sdk/api/types/gov/treasuryTipData.dart';
@@ -19,7 +18,7 @@ abstract class _GovernanceStore with Store {
   final StoreCache cache;
 
   @observable
-  int cacheCouncilTimestamp = 0;
+  int? cacheCouncilTimestamp = 0;
 
   @observable
   BigInt bestNumber = BigInt.zero;
@@ -31,16 +30,19 @@ abstract class _GovernanceStore with Store {
   List<CouncilMotionData> councilMotions = [];
 
   @observable
-  Map<String, Map<String, dynamic>> councilVotes;
+  Map<String, Map<String, dynamic>>? councilVotes;
 
   @observable
-  Map<String, dynamic> userCouncilVotes;
+  Map<String, dynamic>? userCouncilVotes;
 
   @observable
-  List<ReferendumInfo> referendums;
+  List<ReferendumInfo>? referendums;
 
   @observable
-  List voteConvictions;
+  Map referendumStatus = {};
+
+  @observable
+  List? voteConvictions;
 
   @observable
   List<ProposalInfoData> proposals = [];
@@ -49,11 +51,19 @@ abstract class _GovernanceStore with Store {
   TreasuryOverviewData treasuryOverview = TreasuryOverviewData();
 
   @observable
-  List<TreasuryTipData> treasuryTips;
+  List<TreasuryTipData>? treasuryTips;
+
+  @observable
+  ProposalInfoData? external;
+
+  @action
+  void setExternal(ProposalInfoData? data) {
+    external = data;
+  }
 
   @action
   void setCouncilInfo(Map info, {bool shouldCache = true}) {
-    council = CouncilInfoData.fromJson(info);
+    council = CouncilInfoData.fromJson(info as Map<String, dynamic>);
 
     if (shouldCache) {
       cacheCouncilTimestamp = DateTime.now().millisecondsSinceEpoch;
@@ -85,7 +95,12 @@ abstract class _GovernanceStore with Store {
   }
 
   @action
-  void setReferendumVoteConvictions(List ls) {
+  void setReferendumStatus(Map data) {
+    referendumStatus = data;
+  }
+
+  @action
+  void setReferendumVoteConvictions(List? ls) {
     voteConvictions = ls;
   }
 
@@ -122,6 +137,7 @@ abstract class _GovernanceStore with Store {
   @action
   void clearState() {
     referendums = [];
+    referendumStatus = {};
     proposals = [];
     councilMotions = [];
     treasuryOverview = TreasuryOverviewData();
