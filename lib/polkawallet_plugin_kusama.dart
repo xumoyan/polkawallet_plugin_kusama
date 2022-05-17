@@ -146,10 +146,6 @@ class PluginKusama extends PolkawalletPlugin {
         return CupertinoPageRoute(
             settings: settings, builder: (_) => UnBondPage(this, keyring));
       },
-      RebondPage.route: (settings, uniqueId) {
-        return CupertinoPageRoute(
-            settings: settings, builder: (_) => RebondPage(this, keyring));
-      },
       SetPayeePage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
             settings: settings, builder: (_) => SetPayeePage(this, keyring));
@@ -186,64 +182,47 @@ class PluginKusama extends PolkawalletPlugin {
             settings: settings,
             builder: (_) => ValidatorChartsPage(this, keyring));
       },
-      DemocracyPage.route: (settings, uniqueId) {
+      StakingPage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
-            settings: settings, builder: (_) => DemocracyPage(this, keyring));
+            settings: settings, builder: (_) => StakingPage(this, keyring));
       },
-      ReferendumVotePage.route: (settings, uniqueId) {
+      StakingHistoryPage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
-            settings: settings,
-            builder: (_) => ReferendumVotePage(this, keyring));
+            settings: settings, builder: (_) => StakingHistoryPage(this));
+      },
+      OverViewPage.route: (settings, uniqueId) {
+        return CupertinoPageRoute(
+            settings: settings, builder: (_) => OverViewPage(this));
+      },
+      RewardDetailNewPage.route: (settings, uniqueId) {
+        return CupertinoPageRoute(
+            settings: settings, builder: (_) => RewardDetailNewPage(this));
+      },
+      GovernancePage.route: (settings, uniqueId) {
+        return CupertinoPageRoute(
+            settings: settings, builder: (_) => GovernancePage(this, keyring));
       },
       CouncilPage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
-            settings: settings, builder: (_) => CouncilPage(this, keyring));
-      },
-      CouncilVotePage.route: (settings, uniqueId) {
-        return CupertinoPageRoute(
-            settings: settings, builder: (_) => CouncilVotePage(this));
-      },
-      CandidateListPage.route: (settings, uniqueId) {
-        return CupertinoPageRoute(
-            settings: settings,
-            builder: (_) => CandidateListPage(this, keyring));
+            settings: settings, builder: (_) => CouncilPage(this));
       },
       CandidateDetailPage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
             settings: settings,
             builder: (_) => CandidateDetailPage(this, keyring));
       },
-      MotionDetailPage.route: (settings, uniqueId) {
+      ReferendumVotePage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
             settings: settings,
-            builder: (_) => MotionDetailPage(this, keyring));
+            builder: (_) => ReferendumVotePage(this, keyring));
       },
-      ProposalDetailPage.route: (settings, uniqueId) {
+      CouncilVotePage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
-            settings: settings,
-            builder: (_) => ProposalDetailPage(this, keyring));
+            settings: settings, builder: (_) => CouncilVotePage(this, keyring));
       },
       TreasuryPage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
             settings: settings, builder: (_) => TreasuryPage(this, keyring));
-      },
-      SpendProposalPage.route: (settings, uniqueId) {
-        return CupertinoPageRoute(
-            settings: settings,
-            builder: (_) => SpendProposalPage(this, keyring));
-      },
-      SubmitProposalPage.route: (settings, uniqueId) {
-        return CupertinoPageRoute(
-            settings: settings,
-            builder: (_) => SubmitProposalPage(this, keyring));
-      },
-      SubmitTipPage.route: (settings, uniqueId) {
-        return CupertinoPageRoute(
-            settings: settings, builder: (_) => SubmitTipPage(this, keyring));
-      },
-      TipDetailPage.route: (settings, uniqueId) {
-        return CupertinoPageRoute(
-            settings: settings, builder: (_) => TipDetailPage(this, keyring));
       },
       DAppWrapperPage.route: (settings, uniqueId) {
         return CupertinoPageRoute(
@@ -258,6 +237,15 @@ class PluginKusama extends PolkawalletPlugin {
                 _service.getPassword as Future<String> Function(
                     BuildContext, KeyPairData)));
       },
+      // parachains
+      ParasPage.route: (settings, uniqueId) {
+        return CupertinoPageRoute(
+            settings: settings, builder: (_) => ParasPage(this, keyring));
+      },
+      ContributePage.route: (settings, uniqueId) {
+        return CupertinoPageRoute(
+            settings: settings, builder: (_) => ContributePage(this, keyring));
+      }
     };
   }
 

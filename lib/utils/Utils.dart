@@ -1,6 +1,10 @@
 class Utils {
-  static dynamic getParams(Map<String, dynamic> map) {
-    final Map<String, dynamic> arguments = Map<String, dynamic>.from(map);
-    return arguments["params"];
+  static dynamic getParams(Object? object) {
+    if (object != null) {
+      Map<String, dynamic> map = object as Map<String, dynamic>;
+      final Map<String, dynamic> arguments = Map<String, dynamic>.from(map);
+      return arguments["params"];
+    }
+    return object;
   }
 }
