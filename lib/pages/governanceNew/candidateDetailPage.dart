@@ -66,7 +66,7 @@ class _CandidateDetailPageState extends State<CandidateDetailPage> {
           builder: (_) {
             final iconsMap = widget.plugin.store.accounts.addressIconsMap;
             final accInfo =
-                widget.plugin.store.accounts.addressIndexMap![info[0]];
+                widget.plugin.store.accounts.addressIndexMap[info[0]];
             TextStyle? style = Theme.of(context)
                 .textTheme
                 .headline4
